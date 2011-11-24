@@ -370,7 +370,7 @@ private:
             const void *data, size_t size,
             unsigned *profile, unsigned *level);
 #ifdef QCOM_HARDWARE
-    void parseFlags( uint32_t flags );
+    void parseFlags();
 #endif
 
     OMXCodec(const OMXCodec &);

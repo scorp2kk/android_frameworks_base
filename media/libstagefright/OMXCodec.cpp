@@ -1949,6 +1949,7 @@ OMXCodec::OMXCodec(
                         ? NULL : nativeWindow),
       mInterlaceFormatDetected(false),
       mThumbnailMode(false) {
+    parseFlags();
 #else
       mNativeWindow(!strncmp(componentName, "OMX.google.", 11)
                         ? NULL : nativeWindow),
@@ -5497,10 +5498,10 @@ status_t OMXCodec::pause() {
 }
 
 #ifdef QCOM_HARDWARE
-void OMXCodec::parseFlags(uint32_t flags) {
+void OMXCodec::parseFlags() {
     //TODO - uncomment if needed
     //    mGPUComposition = ((flags & kEnableGPUComposition) ? true : false);
-    mThumbnailMode = ((flags & kEnableThumbnailMode) ? true : false);
+    mThumbnailMode = ((mFlags & kEnableThumbnailMode) ? true : false);
 }
 #endif
 
