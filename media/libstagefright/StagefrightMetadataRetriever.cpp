@@ -367,7 +367,7 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
     VideoFrame *frame =
         extractVideoFrameWithCodecFlags(
 #endif
-                &mClient, trackMeta, source, OMXCodec::kPreferSoftwareCodecs,
+                &mClient, trackMeta, source, OMXCodec::kSoftwareCodecsOnly,
                 timeUs, option);
 #ifdef QCOM_HARDWARE
     }
