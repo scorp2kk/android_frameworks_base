@@ -378,6 +378,15 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
                 &mClient, trackMeta, source, OMXCodec::kPreferSoftwareCodecs,
                 timeUs, option);
 #ifdef QCOM_HARDWARE
+            if (frame == NULL){
+                // remake source to ensure its stopped before we start it
+                source.clear();
+                source = mExtractor->getTrack(i);
+                if (source.get() == NULL) {
+                    LOGV("unable to instantiate video track.");
+                    return NULL;
+                }
+            }
         }
     }
 #endif
