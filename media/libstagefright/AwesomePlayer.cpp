@@ -1907,7 +1907,7 @@ void AwesomePlayer::onVideoEvent() {
 
             int64_t now = getTimeOfDayUs(),
             diff = now - mStats.mLastFrameUs;
-            if (diff > 250000) {
+            if (diff > 50000) {
                 float fps =((mStats.mTotalFrames - mStats.mLastFrame) * 1E6)/diff;
                 LOGW("Frames per second: %.4f", fps);
                 if(mStats.mLastFrameUs != 0)
