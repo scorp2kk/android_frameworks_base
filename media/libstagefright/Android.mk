@@ -183,6 +183,7 @@ LOCAL_SHARED_LIBRARIES += \
 LOCAL_CFLAGS += -Wno-multichar
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+        LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/display/libqcomui
         LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/display/libgralloc
         LOCAL_C_INCLUDES += $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
         LOCAL_C_INCLUDES += $(TOP)/system/core/include
