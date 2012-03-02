@@ -1870,7 +1870,7 @@ status_t OMXCodec::setVideoOutputFormat(
                || format.eColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
 #ifdef QCOM_HARDWARE
                || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar
-               || format.eColorFormat == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka);
+               || format.eColorFormat == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka
 #else
                || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar
 #endif
