@@ -2158,7 +2158,6 @@ status_t OMXCodec::setVideoOutputFormat(
     }
 #endif
 
-#if 1
     {
         OMX_VIDEO_PARAM_PORTFORMATTYPE format;
         InitOMXParams(&format);
@@ -2220,7 +2219,6 @@ status_t OMXCodec::setVideoOutputFormat(
             return err;
         }
     }
-#endif
 
     OMX_PARAM_PORTDEFINITIONTYPE def;
     InitOMXParams(&def);
@@ -2710,34 +2708,26 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
     if (err != OK) {
         return err;
     }
-#ifndef SAMSUNG_CODEC_SUPPORT
 
-#ifdef QCOM_HARDWARE
-    int format = (def.format.video.eColorFormat ==
-                  QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka)?
-                 HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED : def.format.video.eColorFormat;
-    if(def.format.video.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar)
-        format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
-
-    format ^= (mInterlaceFormatDetected ? HAL_PIXEL_FORMAT_INTERLACE : 0);
-#endif
-
-#ifdef QCOM_HARDWARE
-    err = native_window_set_buffers_geometry(
-            mNativeWindow.get(),
-            def.format.video.nStride,
-            def.format.video.nSliceHeight,
-            format);
-#else
-    err = native_window_set_buffers_geometry(
-            mNativeWindow.get(),
-            def.format.video.nFrameWidth,
-            def.format.video.nFrameHeight,
-            def.format.video.eColorFormat);
-#endif //QCOM_HARDWARE
-#else
     OMX_COLOR_FORMATTYPE eColorFormat;
+#ifdef QCOM_HARDWARE
+    switch (def.format.video.eColorFormat) {
+    case QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka:
+      eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED;
+      break;
+    case OMX_QCOM_COLOR_FormatYVU420SemiPlanar:
+      eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCrCb_420_SP;
+      break;
+    default:
+      eColorFormat = def.format.video.eColorFormat;
+      break;
+    }
 
+    if (mInterlaceFormatDetected) {
+      eColorFormat = (OMX_COLOR_FORMATTYPE)(eColorFormat ^ HAL_PIXEL_FORMAT_INTERLACE);
+    }
+
+#elif SAMSUNG_CODEC_SUPPORT
     switch (def.format.video.eColorFormat) {
     case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
         eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_CUSTOM_YCbCr_420_SP_TILED;
@@ -2750,13 +2740,15 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_P;
         break;
     }
-
+#else
+    eColorFormat = def.format.video.eColorFormat;
+#endif
     err = native_window_set_buffers_geometry(
             mNativeWindow.get(),
             def.format.video.nFrameWidth,
             def.format.video.nFrameHeight,
             eColorFormat);
-#endif
+
     if (err != 0) {
         LOGE("native_window_set_buffers_geometry failed: %s (%d)",
                 strerror(-err), -err);
@@ -5732,7 +5724,10 @@ static const char *colorFormatString(OMX_COLOR_FORMATTYPE type) {
 
     if (type == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar) {
         return "OMX_TI_COLOR_FormatYUV420PackedSemiPlanar";
-	}
+    }
+    if (type == OMX_QCOM_COLOR_FormatYVU420SemiPlanar) {
+        return "OMX_QCOM_COLOR_FormatYVU420SemiPlanar";
+    }
 #ifdef SAMSUNG_CODEC_SUPPORT
     if (type == OMX_SEC_COLOR_FormatNV12TPhysicalAddress) {
         return "OMX_SEC_COLOR_FormatNV12TPhysicalAddress";
@@ -5747,15 +5742,15 @@ static const char *colorFormatString(OMX_COLOR_FORMATTYPE type) {
         return "OMX_SEC_COLOR_FormatNV12Tiled";
     }
 #endif
-    else if (type == OMX_QCOM_COLOR_FormatYVU420SemiPlanar) {
-        return "OMX_QCOM_COLOR_FormatYVU420SemiPlanar";
 #ifdef QCOM_HARDWARE
-    } else if (type == QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka) {
+    if (type == QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka) {
         return "QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka";
-    } else if (type == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka) {
+    }
+    if (type == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka) {
         return "QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka";
+    }
 #endif
-    } else if (type < 0 || (size_t)type >= numNames) {
+    if (type < 0 || (size_t)type >= numNames) {
         return "UNKNOWN";
     } else {
         return kNames[type];
