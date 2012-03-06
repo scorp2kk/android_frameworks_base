@@ -504,6 +504,7 @@ public class BluetoothService extends IBluetooth.Stub {
         }
         switchConnectable(false);
         updateSdpRecords();
+        updateBluetoothState(convertParcelUuidToString(mAdapterUuids));
         return true;
     }
 
@@ -565,7 +566,7 @@ public class BluetoothService extends IBluetooth.Stub {
         }
 
         // Add SDP records for profiles maintained by Android userspace
-        addReservedSdpRecords(uuids);
+        // addReservedSdpRecords(uuids);
 
         // Enable profiles maintained by Bluez userspace.
         setBluetoothTetheringNative(true, BluetoothPanProfileHandler.NAP_ROLE,
@@ -876,6 +877,18 @@ public class BluetoothService extends IBluetooth.Stub {
             uuids[i] = ParcelUuid.fromString(uuidStrings[i]);
         }
         return uuids;
+    }
+
+    private String convertParcelUuidToString(ParcelUuid[] uuids) {
+        String retVal = new String();
+
+        for (int i = 0; i < uuids.length; i++) {
+            retVal += uuids[i].toString();
+            if (i != uuids.length - 1) {
+                retVal += ",";
+            }
+        }
+        return retVal;
     }
 
     /**
